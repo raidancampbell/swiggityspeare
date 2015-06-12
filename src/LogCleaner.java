@@ -1,6 +1,9 @@
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by aidan on 6/11/15.
@@ -16,7 +19,7 @@ public class LogCleaner {
      * concatenate all the files, scrub the timestamps off, then remove the join/part messages 
      * @return username: text 
      */
-    public String clean(){
+    public String clean() throws IOException {
         StringBuilder stringBuilder = new StringBuilder();
         for(String s : fluffen(readAllFiles())){
             s = removeStatusMessages(removeTimestamp(s)).trim();
@@ -40,7 +43,14 @@ public class LogCleaner {
      * @return the input if it was an actual string, an empty string if it was a status message
      */
     private String removeStatusMessages(String input){
-        if(input.contains(":")) return input;
+        //better regex \W+:
+        input = input.trim();
+        Matcher m = Pattern.compile("\\S+:").matcher(input);
+        if (m.find()){
+            if(input.startsWith("Topic") || input.startsWith("ChanServ") || input.startsWith("Mode")) return "";
+            if(input.startsWith(m.group(0))) return input;
+        }
+        
         return "";
     }
 
@@ -48,13 +58,13 @@ public class LogCleaner {
      * reads all the files from the DIRECTORY set in the constructor
      * @return the concatenated string of all the files
      */
-    private String readAllFiles(){
+    private String readAllFiles() throws IOException {
         File folder = new File(DIRECTORY);
         File[] listOfFiles = folder.listFiles();
         StringBuilder stringBuilder = new StringBuilder();
         for (File file : listOfFiles) {
             if (file.isFile()) {
-                stringBuilder.append(file.getName());
+                stringBuilder.append( new String(Files.readAllBytes(Paths.get(DIRECTORY+'/'+file.getName()))));
             }
         }
         return stringBuilder.toString();
