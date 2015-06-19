@@ -46,7 +46,7 @@ public class LogCleaner {
         //better regex \W+:
         input = input.trim();
         Matcher m = Pattern.compile("\\S+:").matcher(input);
-        if (m.find()){
+        if (m.find()){//also handle when status messages are logged like nicks
             if(input.startsWith("Topic") || input.startsWith("ChanServ") || input.startsWith("Mode")) return "";
             if(input.startsWith(m.group(0))) return input;
         }
