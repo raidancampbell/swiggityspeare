@@ -7,5 +7,11 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="pircbot" level="project" />
+    <orderEntry type="library" name="commons-lang3-3.4" level="project" />
+    <orderEntry type="library" name="guava-18.0" level="project" />
+    <orderEntry type="library" name="pircbotx-2.0.1" level="project" />
+    <orderEntry type="library" name="slf4j-simple-1.7.12" level="project" />
+    <orderEntry type="library" name="slf4j-api-1.7.12" level="project" />
   </component>
 </module>

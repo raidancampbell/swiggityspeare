@@ -2,11 +2,11 @@ import java.io.*;
 import java.util.ArrayList;
 
 /**
- * Created by aidan on 6/11/15.
+ * @author R. Aidan Campbell on 6/11/15.
  */
-public class Swiggityspeare {
+public class Swiggityspeare_utils {
     
-    public Swiggityspeare(){
+    public Swiggityspeare_utils(){
         //constructors, yo.
     }
     
@@ -14,7 +14,8 @@ public class Swiggityspeare {
         //main method, yo.
         
         //on every start we're gonna read the raw data, clean it, and write it back out.
-        writeCleanedData(readRawData());
+        //because that makes sense while we're developing it.
+        //writeCleanedData(readRawData());
     }
 
     /**
