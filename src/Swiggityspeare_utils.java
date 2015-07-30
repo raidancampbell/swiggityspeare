@@ -1,5 +1,7 @@
 import java.io.*;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author R. Aidan Campbell on 6/11/15.
@@ -95,7 +97,7 @@ public class Swiggityspeare_utils {
     }
 
     /**
-     * elicits a reponse from the RNN, using the given seed as the subject of the response
+     * elicits a response from the RNN, using the given seed as the subject of the response
      * @param seed what the RNN should respond about
      * @return the RNN's response
      */
@@ -104,11 +106,28 @@ public class Swiggityspeare_utils {
         if(value.indexOf('\n') < 0){
             return "huh.  I don't have an answer for you... " + value;
         }
+        System.out.println("Responding to query with: " + value);
         value = value.substring(value.indexOf('\n')+1);  // text before first newline is garbage
-        return value.contains("\n") ? 
-                value.substring(value.indexOf(':')+2,value.indexOf('\n')) :
-                value.substring(value.indexOf(':')+2);
-        //TODO: assert that the first line is properly formatted, and is really what I want.
+        if (value.contains("\n")) {
+            value = value.substring(value.indexOf(':') + 2, value.indexOf('\n')).trim();
+            return trimNick(value);
+        } else {
+            value = value.substring(value.indexOf(':') + 2).trim();
+            return trimNick(value);
+        }
+    }
+
+    /**
+     * removes IRC nicks from the beginning of a string
+     * @param input string, possibly containing an IRC nick in `nick: ` format
+     * @return the given string without the prepended nick
+     */
+    public static String trimNick(String input){
+        Pattern p = Pattern.compile("^\\w+:\\s");  
+        // one or more word characters at the beginning of a string, followed by a colon, then a whitespace
+        Matcher m = p.matcher(input);
+        if(m.find()) return input.substring(0, m.end());
+        return input;
     }
 
     /**
@@ -130,5 +149,13 @@ public class Swiggityspeare_utils {
         String author=networkResponse.substring(0,networkResponse.indexOf(":"));
         String text =networkResponse.substring(networkResponse.indexOf(":"));
         return text;
+    }
+    
+    public static boolean isNumber(String input){
+        System.out.println("Checking if input '" + input + "' is a number");
+        for(char c : input.toCharArray()){
+            if(!Character.isDigit(c)) return false;
+        }
+        return true;
     }
 }
