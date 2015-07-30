@@ -1,11 +1,7 @@
 <component name="libraryTable">
   <library name="pircbot">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/dependencies/pircbot.jar!/" />
-    </CLASSES>
+    <CLASSES />
     <JAVADOC />
-    <SOURCES>
-      <root url="jar://$PROJECT_DIR$/dependencies/pircbot.jar!/" />
-    </SOURCES>
+    <SOURCES />
   </library>
 </component>

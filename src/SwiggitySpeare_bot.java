@@ -15,8 +15,17 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
     @Override
     public void onGenericMessage(GenericMessageEvent event) {
         //When someone says ?helloworld respond with "Hello World"
-        if (event.getMessage().startsWith("?helloworld"))
-            event.respond("Hello world!");
+        String message = event.getMessage();
+        if (message.toLowerCase().startsWith("swiggity")){
+            
+            String query = message.substring(message.indexOf("swiggity"));
+            if(! query.isEmpty()) {
+                String response = Swiggityspeare_utils.getString(query);
+                event.respond(response);
+            }
+            
+        }
+        
     }
 
     public static void main(String[] args) throws Exception {
@@ -24,9 +33,9 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
         Configuration configuration = new org.pircbotx.Configuration.Builder()
                 .setName("swiggityspeare") //Set the nick of the bot.
                 .setServerHostname("irc.case.edu") //Join the network
-                .addAutoJoinChannel("#swag") //Join a channel
-                .setServerPort(6697)
-                .setSocketFactory(new UtilSSLSocketFactory().trustAllCertificates())
+                .setServerPort(6697) // at this port
+                .setSocketFactory(new UtilSSLSocketFactory().trustAllCertificates()) // using SSL
+                .addAutoJoinChannel("#swag") //Join the test channel
                 .addListener(new SwiggitySpeare_bot()) //Add our listener that will be called on Events
                 .buildConfiguration();
         

@@ -48,22 +48,30 @@ public class Swiggityspeare_utils {
         return true;
     }
 
-    private static String getString(String seed, int length){
+    public static String getString(String seed, int length){
         ArrayList<String> commands = new ArrayList<>();
         commands.add("th");
-        commands.add("checkpointEvaluator.lua");
+        commands.add("sample.lua");
         commands.add("-length");
         commands.add(((Integer) length).toString());
         if(seed != null){
-            commands.add("-context");
-            commands.add(seed);
+            commands.add("-primetext");
+            commands.add('"'+seed+'"');
         }
         commands.add("-seed");
         commands.add(System.currentTimeMillis()+"");//cheating way to turn it into a string
-        System.out.println("> Querying Neural Net for response");
+        commands.add("-verbose");
+        commands.add("0");
+//        commands.add("-gpuid");
+//        commands.add("-1");//use cpu evaluation
+        commands.add("irc_network.t7");
+        System.out.println("> Querying Neural Net for response to: ");
+        for(String s: commands) System.out.print(s);
+        System.out.print('\n');
         StringBuilder response = new StringBuilder();
         try {
-            Process pr = Runtime.getRuntime().exec(commands.toArray(new String[commands.size()]));
+            Process pr = Runtime.getRuntime().exec(commands.toArray(new String[commands.size()]), 
+                    null, new File( "data/char-rnn" ).getAbsoluteFile());
             BufferedReader errorReader = new BufferedReader(new InputStreamReader(pr.getErrorStream()));
             BufferedReader outputReader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
             String error;
@@ -72,6 +80,7 @@ public class Swiggityspeare_utils {
             }
             String respondedLine;
             while ((respondedLine = outputReader.readLine()) != null) {
+                System.out.println("> stdout output: " + respondedLine);
                 response.append(respondedLine).append("\n");
             }
             errorReader.close();
@@ -90,9 +99,15 @@ public class Swiggityspeare_utils {
      * @param seed what the RNN should respond about
      * @return the RNN's response
      */
-    private static String getString(String seed){
+    public static String getString(String seed){
         String value = getString(seed, (int)(Math.random()*100)+100);
-        return value.substring(0,value.indexOf('\n'));
+        if(value.indexOf('\n') < 0){
+            return "huh.  I don't have an answer for you... " + value;
+        }
+        value = value.substring(value.indexOf('\n')+1);  // text before first newline is garbage
+        return value.contains("\n") ? 
+                value.substring(value.indexOf(':')+2,value.indexOf('\n')) :
+                value.substring(value.indexOf(':')+2);
         //TODO: assert that the first line is properly formatted, and is really what I want.
     }
 
@@ -101,7 +116,7 @@ public class Swiggityspeare_utils {
      * @param length length of the desired string
      * @return the string returned from the RNN
      */
-    private static String getString(int length){
+    public static String getString(int length){
         return getString(null, length);
     }
 
