@@ -1,11 +1,14 @@
 
 /**
  * @author R. Aidan Campbell on 7/29/15.
+ * 
+ * TODO: disconnect from a channel after invite given
  */
 
 import org.pircbotx.*;
 import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.ChannelInfoEvent;
+import org.pircbotx.hooks.events.InviteEvent;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.types.GenericMessageEvent;
 import org.pircbotx.output.OutputIRC;
@@ -47,6 +50,12 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
             if (chan.getClass() != ChannelListEntry.class) return;
             currentChannels.add(((ChannelListEntry) chan).getName());
         }
+    }
+    
+    @Override
+    public void onInvite(InviteEvent event) {
+        if(irc_instance == null) irc_instance = new OutputIRC(event.getBot());
+        irc_instance.joinChannel(event.getChannel());
     }
     
     public void parseInvite(MessageEvent event){
