@@ -3,16 +3,21 @@
  * @author R. Aidan Campbell on 7/29/15.
  */
 
-import org.pircbotx.Configuration;
-import org.pircbotx.PircBotX;
-import org.pircbotx.UtilSSLSocketFactory;
+import org.pircbotx.*;
 import org.pircbotx.hooks.ListenerAdapter;
+import org.pircbotx.hooks.events.ChannelInfoEvent;
+import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.types.GenericMessageEvent;
+import org.pircbotx.output.OutputIRC;
 
 import java.nio.charset.MalformedInputException;
+import java.util.HashSet;
+import java.util.Set;
 
 
 public class SwiggitySpeare_bot extends ListenerAdapter {
+    Set<String> currentChannels = new HashSet<>();
+    OutputIRC irc_instance = null;
 
     @Override
     public void onGenericMessage(GenericMessageEvent event) {
@@ -25,6 +30,41 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
             if(! query.isEmpty()) {
                 String response = Swiggityspeare_utils.getString(query);
                 event.respond(response);
+            }
+        }
+    }
+    
+    @Override
+    public void onMessage(MessageEvent event){
+        parseInvite(event);
+        
+    }
+    
+    @Override
+    public void onChannelInfo(ChannelInfoEvent event){
+        currentChannels.clear();
+        for (Object chan : event.getList()){
+            if (chan.getClass() != ChannelListEntry.class) return;
+            currentChannels.add(((ChannelListEntry) chan).getName());
+        }
+    }
+    
+    public void parseInvite(MessageEvent event){
+        String message = event.getMessage();
+        if(message.toLowerCase().startsWith("join")){
+            String[] words = message.split(" ");
+            if(words.length != 2) return;
+
+            User user = event.getUser();
+            String strChannel = words[1];
+            if(irc_instance == null) irc_instance = new OutputIRC(event.getBot());
+            irc_instance.listChannels();
+            if(currentChannels.contains(strChannel)) {
+                irc_instance.joinChannel(strChannel);
+                irc_instance.invite(user.toString(), strChannel);
+            } else if (currentChannels.contains("#"+strChannel)){
+                irc_instance.joinChannel("#"+strChannel);
+                irc_instance.invite(user.toString(), "#" +strChannel);
             }
         }
     }

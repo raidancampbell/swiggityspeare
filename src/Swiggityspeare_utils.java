@@ -109,9 +109,11 @@ public class Swiggityspeare_utils {
         System.out.println("Responding to query with: " + value);
         value = value.substring(value.indexOf('\n')+1);  // text before first newline is garbage
         if (value.contains("\n")) {
+            if(!value.contains(":")) return "";
             value = value.substring(value.indexOf(':') + 2, value.indexOf('\n')).trim();
             return trimNick(value);
         } else {
+            if(!value.contains(":")) return "";
             value = value.substring(value.indexOf(':') + 2).trim();
             return trimNick(value);
         }
