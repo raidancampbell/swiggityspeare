@@ -57,14 +57,21 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
 
             User user = event.getUser();
             String strChannel = words[1];
+            System.out.println("searching for channel " + strChannel);
             if(irc_instance == null) irc_instance = new OutputIRC(event.getBot());
             irc_instance.listChannels();
             if(currentChannels.contains(strChannel)) {
+                System.out.println("attempting to join channel: " + strChannel);
                 irc_instance.joinChannel(strChannel);
+                try {Thread.sleep(100); } catch (Exception e) { e.printStackTrace();}
                 irc_instance.invite(user.toString(), strChannel);
-            } else if (currentChannels.contains("#"+strChannel)){
-                irc_instance.joinChannel("#"+strChannel);
+                try {Thread.sleep(10000); } catch (Exception e) { e.printStackTrace();}
+            } else if (currentChannels.contains("#"+strChannel)) {
+                System.out.println("attempting to join channel: " + "#" + strChannel);
+                irc_instance.joinChannel("#" + strChannel);
+                try {Thread.sleep(100); } catch (Exception e) { e.printStackTrace();}
                 irc_instance.invite(user.toString(), "#" +strChannel);
+                try {Thread.sleep(10000); } catch (Exception e) { e.printStackTrace();}
             }
         }
     }
