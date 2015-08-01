@@ -24,7 +24,7 @@ public class Swiggityspeare_utils {
      * reads the data from the logcleaner
      * @return the cleaned raw data
      */
-    private static String readRawData(){
+    public static String readRawData(){
         LogCleaner cleaner = new LogCleaner("data/raw");
         ShakespeareCleaner shakespeareCleaner = new ShakespeareCleaner("data/shakespeare");
         try {
@@ -40,7 +40,7 @@ public class Swiggityspeare_utils {
      * writes the given data to a local cleaned log file
      * @return boolean if file already existed
      */
-    private static boolean writeCleanedData(String dataToWrite){
+    public static boolean writeCleanedData(String dataToWrite){
         try {
             BufferedWriter write = new BufferedWriter(new FileWriter("input.txt"));
             write.write(dataToWrite);
@@ -50,6 +50,14 @@ public class Swiggityspeare_utils {
         return true;
     }
 
+    /**
+     * Here's where the neural network actually gets queried. 
+     * This requires a working char-rnn environment, with a trained network
+     * called `irc_network.t7` placed in the root directory of the char-rnn folder
+     * @param seed primetext to input to the network
+     * @param length number of characters requested for a response
+     * @return the neural network's response: a String of length `length`
+     */
     public static String getString(String seed, int length){
         ArrayList<String> commands = new ArrayList<>();
         commands.add("th");
@@ -73,7 +81,7 @@ public class Swiggityspeare_utils {
         StringBuilder response = new StringBuilder();
         try {
             Process pr = Runtime.getRuntime().exec(commands.toArray(new String[commands.size()]), 
-                    null, new File( "data/char-rnn" ).getAbsoluteFile());
+                    null, new File( "dependencies/char-rnn" ).getAbsoluteFile());
             BufferedReader errorReader = new BufferedReader(new InputStreamReader(pr.getErrorStream()));
             BufferedReader outputReader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
             String error;
@@ -147,12 +155,19 @@ public class Swiggityspeare_utils {
      * @return the text that a nick said
      * TODO: we may receive multiline statements. fluffen, clean, flatten.
      */
-    private static String cleanString(String networkResponse){
+    public static String cleanString(String networkResponse){
         String author=networkResponse.substring(0,networkResponse.indexOf(":"));
         String text =networkResponse.substring(networkResponse.indexOf(":"));
         return text;
     }
-    
+
+    /**
+     * You give me a string, I tell you if every character is a digit
+     * decimals and negative signs are NOT considered numeric.  This will
+     * simply check if every character is a digit
+     * @param input String to check whether it is a number
+     * @return whether the input String is a number
+     */
     public static boolean isNumber(String input){
         System.out.println("Checking if input '" + input + "' is a number");
         for(char c : input.toCharArray()){
