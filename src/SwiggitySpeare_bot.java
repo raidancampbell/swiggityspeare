@@ -204,8 +204,12 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
                 channels = cmdLineInstance.getOptionValues("c");
             }
         } catch (ParseException e) {
-            System.err.println("ERROR: bad CLI option given!");
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp( "swiggityspeare", options );
             e.printStackTrace();
+            System.exit(0);
+//            System.err.println("ERROR: bad CLI option given!");
+//            e.printStackTrace();
         } catch (NumberFormatException e) {
             System.err.println("ERROR: malformed port number given");
             e.printStackTrace();
