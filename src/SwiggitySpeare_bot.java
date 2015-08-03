@@ -177,7 +177,7 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
         Option option_server = new Option("s", true,"IRC server hostname");
         Option option_port = new Option("p", true,"IRC server port number (SSL is assumed)");
         Option option_botname = new Option("n", true, "nick for the bot to take");
-        Option option_channel = new Option("c", true, "channels to join, space delimited and # prepended");
+        Option option_channel = new Option("c", true, "channels to join, including quotes, in the format \"#chan1 #chan2\"");
         Options options = new Options();
         options.addOption(option_server)
                 .addOption(option_port)
@@ -189,8 +189,8 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
         int port_number = 6697;
 
         try {
-            CommandLineParser parser = new GnuParser(); // TODO: switch from deprecated GnuParser to DefaultParser
-            cmdLineInstance = parser.parse(options, args);
+            CommandLineParser parser = new DefaultParser();
+            cmdLineInstance = parser.parse(options, args, false);
             if (cmdLineInstance.hasOption("s")) {
                 servername = cmdLineInstance.getOptionValue("s");
             }
@@ -198,18 +198,16 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
                 port_number = Integer.parseInt(cmdLineInstance.getOptionValue("p"));
             }
             if(cmdLineInstance.hasOption("n")) {
-                botname = cmdLineInstance.getOptionValue(("n"));
+                botname = cmdLineInstance.getOptionValue("n");
             }
             if(cmdLineInstance.hasOption("c")) {
-                channels = cmdLineInstance.getOptionValues("c");
+                channels = cmdLineInstance.getOptionValue("c").split(" ");
             }
         } catch (ParseException e) {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp( "swiggityspeare", options );
             e.printStackTrace();
             System.exit(0);
-//            System.err.println("ERROR: bad CLI option given!");
-//            e.printStackTrace();
         } catch (NumberFormatException e) {
             System.err.println("ERROR: malformed port number given");
             e.printStackTrace();
