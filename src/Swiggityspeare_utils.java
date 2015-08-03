@@ -71,9 +71,7 @@ public class Swiggityspeare_utils {
         commands.add("-seed");
         commands.add(System.currentTimeMillis()+"");//cheating way to turn it into a string
         commands.add("-verbose");
-        commands.add("0");
-//        commands.add("-gpuid");
-//        commands.add("-1");//use cpu evaluation
+        commands.add("0"); // make sure what char-rnn gives us is the network's output
         commands.add("irc_network.t7");
         System.out.println("> Querying Neural Net for response to: ");
         for(String s: commands) System.out.print(s);

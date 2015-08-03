@@ -43,7 +43,6 @@ public class LogCleaner {
      * @return the input if it was an actual string, an empty string if it was a status message
      */
     private String removeStatusMessages(String input){
-        //better regex \W+:
         input = input.trim();
         Matcher m = Pattern.compile("\\S+:").matcher(input);
         if (m.find()){//also handle when status messages are logged like nicks

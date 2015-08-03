@@ -1,5 +1,5 @@
 <component name="ArtifactManager">
-  <artifact type="jar" name="swiggityspeare.jar">
+  <artifact type="jar" build-on-make="true" name="swiggityspeare.jar">
     <output-path>$PROJECT_DIR$/</output-path>
     <root id="archive" name="swiggityspeare.jar">
       <element id="module-output" name="swiggityspeare" />
@@ -9,6 +9,7 @@
       <element id="extracted-dir" path="$PROJECT_DIR$/dependencies/pircbotx-2.0.1.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/dependencies/slf4j-api-1.7.12.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/dependencies/slf4j-simple-1.7.12.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/dependencies/commons-cli-1.3.1.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

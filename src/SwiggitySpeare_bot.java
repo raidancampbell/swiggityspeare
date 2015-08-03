@@ -4,6 +4,9 @@
  * 
  * TODO: disconnect from a channel after invite given
  * TODO: conditional command obedience
+ * TODO: CLI parsing for the jar
+ *          char-rnn location
+ *          .t7 file
  */
 
 import org.pircbotx.*;
@@ -13,6 +16,9 @@ import org.pircbotx.hooks.events.InviteEvent;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.types.GenericMessageEvent;
 import org.pircbotx.output.OutputIRC;
+
+import org.apache.commons.cli.*;
+import org.apache.commons.cli.ParseException;
 
 import java.nio.charset.MalformedInputException;
 import java.util.HashSet;
@@ -160,20 +166,74 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
         
     }
 
-    public static void main(String[] args) throws Exception {
+    /**
+     * Generates a PircBotX configuration object given command line input
+     * @param args CLI args
+     * @return the generated PircBotX configuration object
+     */
+    public static Configuration getConfigFromCLI(String[] args){
+        CommandLine cmdLineInstance;
+        //for future reference: Option(String switch, does the option have args, String description)
+        Option option_server = new Option("s", true,"IRC server hostname");
+        Option option_port = new Option("p", true,"IRC server port number (SSL is assumed)");
+        Option option_botname = new Option("n", true, "nick for the bot to take");
+        Option option_channel = new Option("c", true, "channels to join, space delimited and # prepended");
+        Options options = new Options();
+        options.addOption(option_server)
+                .addOption(option_port)
+                .addOption(option_botname)
+                .addOption(option_channel);
+
+        String servername="irc.case.edu", botname="swiggityspeare";
+        String[] channels = {"#cwru","#swag"};
+        int port_number = 6697;
+
+        try {
+            CommandLineParser parser = new GnuParser(); // TODO: switch from deprecated GnuParser to DefaultParser
+            cmdLineInstance = parser.parse(options, args);
+            if (cmdLineInstance.hasOption("s")) {
+                servername = cmdLineInstance.getOptionValue("s");
+            }
+            if(cmdLineInstance.hasOption("p")) {
+                port_number = Integer.parseInt(cmdLineInstance.getOptionValue("p"));
+            }
+            if(cmdLineInstance.hasOption("n")) {
+                botname = cmdLineInstance.getOptionValue(("n"));
+            }
+            if(cmdLineInstance.hasOption("c")) {
+                channels = cmdLineInstance.getOptionValues("c");
+            }
+        } catch (ParseException e) {
+            System.err.println("ERROR: bad CLI option given!");
+            e.printStackTrace();
+        } catch (NumberFormatException e) {
+            System.err.println("ERROR: malformed port number given");
+            e.printStackTrace();
+            System.exit(1);
+        }
+
         //Configure what we want our bot to do
-        Configuration configuration = new org.pircbotx.Configuration.Builder()
-                .setName("swiggityspeare") //Set the nick of the bot.
-                .setServerHostname("irc.case.edu") //Join the network
-                .setServerPort(6697) // at this port
+        Configuration.Builder confBuilder = new org.pircbotx.Configuration.Builder()
+                .setName(botname) //Set the nick of the bot.
+                .setServerHostname(servername) //Join the network
+                .setServerPort(port_number) // at this port
                 .setSocketFactory(new UtilSSLSocketFactory().trustAllCertificates()) // using SSL
-                .addAutoJoinChannel("#swag") //Join the test channel
-                .addAutoJoinChannel("#cwru")
-                .addListener(new SwiggitySpeare_bot()) //Add our listener that will be called on Events
-                .buildConfiguration();
+                .addListener(new SwiggitySpeare_bot()); //Add our listener that will be called on Events
+        for(String s : channels) confBuilder.addAutoJoinChannel(s);  //add all the channels you want it to join
         
+        return confBuilder.buildConfiguration();
+    }
+
+    /**
+     * main method, .jar execution enters here.  We configure and begin a bot.
+     * @param args CLI args
+     * @throws Exception
+     */
+    public static void main(String[] args) throws Exception {
+        //parse bot parameters from any given CLI switches
+        Configuration config = getConfigFromCLI(args);
         //Create our bot with the configuration
-        PircBotX bot = new PircBotX(configuration);
+        PircBotX bot = new PircBotX(config);
         //Connect to the server
         bot.startBot();
     }
