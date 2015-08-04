@@ -56,9 +56,11 @@ public class Swiggityspeare_utils {
      * called `irc_network.t7` placed in the root directory of the char-rnn folder
      * @param seed primetext to input to the network
      * @param length number of characters requested for a response
+     * @param directory the location (inclusive) of char-rnn
+     * @param file the name of the .t7 trained network to query                 
      * @return the neural network's response: a String of length `length`
      */
-    public static String getString(String seed, int length){
+    public static String getString(String seed, int length, String directory, String file){
         ArrayList<String> commands = new ArrayList<>();
         commands.add("th");
         commands.add("sample.lua");
@@ -72,14 +74,14 @@ public class Swiggityspeare_utils {
         commands.add(System.currentTimeMillis()+"");//cheating way to turn it into a string
         commands.add("-verbose");
         commands.add("0"); // make sure what char-rnn gives us is the network's output
-        commands.add("irc_network.t7");
+        commands.add(file);
         System.out.println("> Querying Neural Net for response to: ");
         for(String s: commands) System.out.print(s);
         System.out.print('\n');
         StringBuilder response = new StringBuilder();
         try {
             Process pr = Runtime.getRuntime().exec(commands.toArray(new String[commands.size()]), 
-                    null, new File( "dependencies/char-rnn" ).getAbsoluteFile());
+                    null, new File(directory).getAbsoluteFile());
             BufferedReader errorReader = new BufferedReader(new InputStreamReader(pr.getErrorStream()));
             BufferedReader outputReader = new BufferedReader(new InputStreamReader(pr.getInputStream()));
             String error;
@@ -105,10 +107,13 @@ public class Swiggityspeare_utils {
     /**
      * elicits a response from the RNN, using the given seed as the subject of the response
      * @param seed what the RNN should respond about
+     * @param directory the location (inclusive) of char-rnn
+     * @param file the name of the .t7 trained network to query                 
      * @return the RNN's response
      */
-    public static String getString(String seed){
-        String value = getString(seed, (int)(Math.random()*100)+100);
+    public static String getString(String seed, String directory, String file){
+        //the Math.rand is to produce an approximately tweet-length string
+        String value = getString(seed, (int)(Math.random()*100)+100, directory, file);
         if(value.indexOf('\n') < 0){
             return "huh.  I don't have an answer for you... " + value;
         }
@@ -141,10 +146,12 @@ public class Swiggityspeare_utils {
     /**
      * elicits a string from the RNN, of the given length
      * @param length length of the desired string
+     * @param directory the location (inclusive) of char-rnn
+     * @param file the name of the .t7 trained network to query                  
      * @return the string returned from the RNN
      */
-    public static String getString(int length){
-        return getString(null, length);
+    public static String getString(int length, String directory, String file){
+        return getString(null, length, directory, file);
     }
 
     /**

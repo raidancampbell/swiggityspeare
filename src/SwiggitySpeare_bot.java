@@ -28,7 +28,8 @@ import java.util.Set;
 public class SwiggitySpeare_bot extends ListenerAdapter {
     Set<String> currentChannels = new HashSet<>();
     OutputIRC irc_instance = null;
-
+    String neuralNetworkDirectory;
+    String neuralNetworkFile;
 
     /**
      * Honestly, I haven't figured out the difference between OnGenericMessage and OnMessage yet
@@ -44,7 +45,7 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
         if (message.toLowerCase().startsWith("swiggity")) {
             String query = message.substring(message.indexOf(" ") + 1);
             if (!query.isEmpty()) {
-                String response = Swiggityspeare_utils.getString(query);
+                String response = Swiggityspeare_utils.getString(query, neuralNetworkDirectory, neuralNetworkFile);
                 event.respond(response);
             }
         }
@@ -168,26 +169,33 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
 
     /**
      * Generates a PircBotX configuration object given command line input
+     * This method could probably use some cleaning 
      * @param args CLI args
      * @return the generated PircBotX configuration object
      */
     public static Configuration getConfigFromCLI(String[] args){
+        //add options to the command line parser
         CommandLine cmdLineInstance;
         //for future reference: Option(String switch, does the option have args, String description)
-        Option option_server = new Option("s", true,"IRC server hostname");
-        Option option_port = new Option("p", true,"IRC server port number (SSL is assumed)");
-        Option option_botname = new Option("n", true, "nick for the bot to take");
-        Option option_channel = new Option("c", true, "channels to join, including quotes, in the format \"#chan1 #chan2\"");
+        Option option_server = new Option("s", true,"IRC server hostname [irc.case.edu]");
+        Option option_port = new Option("p", true,"IRC server port number (SSL is assumed) [6697]");
+        Option option_botname = new Option("n", true, "nick for the bot to take [swiggityspeare]");
+        Option option_channel = new Option("c", true, "channels to join, including quotes, in the format \"#chan1 #chan2\" [#cwru]");
+        Option option_nnDir = new Option("d", true, "relative path of the char-rnn directory [dependencies/char-rnn]");
+        Option option_network = new Option("t", true, "filename of the .t7 holding the neural network within char-rnn's root directory [irc_network.t7]");
         Options options = new Options();
         options.addOption(option_server)
                 .addOption(option_port)
                 .addOption(option_botname)
-                .addOption(option_channel);
-
-        String servername="irc.case.edu", botname="swiggityspeare";
-        String[] channels = {"#cwru","#swag"};
+                .addOption(option_channel)
+                .addOption(option_nnDir)
+                .addOption(option_network);
+        //set defaults for the options
+        String servername="irc.case.edu", botname="swiggityspeare", nnDir="dependencies/char-rnn", nnFile="irc_network.t7";
+        String[] channels = {"#cwru", "#swag"};
         int port_number = 6697;
-
+        
+        //try and apply the parsed options.  if we didn't find them, then the defaults stick
         try {
             CommandLineParser parser = new DefaultParser();
             cmdLineInstance = parser.parse(options, args, false);
@@ -201,7 +209,15 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
                 botname = cmdLineInstance.getOptionValue("n");
             }
             if(cmdLineInstance.hasOption("c")) {
+                // have to put arg in quotes to allow preceeding `#`, and this also allows multiple inputs
+                //through one switch usage
                 channels = cmdLineInstance.getOptionValue("c").split(" ");
+            }
+            if(cmdLineInstance.hasOption("d")) {
+                nnDir = cmdLineInstance.getOptionValue("d");
+            }
+            if(cmdLineInstance.hasOption("t")) {
+                nnFile = cmdLineInstance.getOptionValue("t");
             }
         } catch (ParseException e) {
             HelpFormatter formatter = new HelpFormatter();
@@ -213,6 +229,10 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
             e.printStackTrace();
             System.exit(1);
         }
+        // not the cleanest way of getting this info out of static scoping, but it works
+        SwiggitySpeare_bot bot_instance = new SwiggitySpeare_bot();
+        bot_instance.neuralNetworkFile = nnFile;
+        bot_instance.neuralNetworkDirectory = nnDir;
 
         //Configure what we want our bot to do
         Configuration.Builder confBuilder = new org.pircbotx.Configuration.Builder()
@@ -220,7 +240,7 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
                 .setServerHostname(servername) //Join the network
                 .setServerPort(port_number) // at this port
                 .setSocketFactory(new UtilSSLSocketFactory().trustAllCertificates()) // using SSL
-                .addListener(new SwiggitySpeare_bot()); //Add our listener that will be called on Events
+                .addListener(bot_instance); //Add our listener that will be called on Events
         for(String s : channels) confBuilder.addAutoJoinChannel(s);  //add all the channels you want it to join
         
         return confBuilder.buildConfiguration();
