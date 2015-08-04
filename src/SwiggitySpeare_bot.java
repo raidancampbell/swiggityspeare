@@ -4,9 +4,6 @@
  * 
  * TODO: disconnect from a channel after invite given
  * TODO: conditional command obedience
- * TODO: CLI parsing for the jar
- *          char-rnn location
- *          .t7 file
  */
 
 import org.pircbotx.*;
@@ -31,6 +28,7 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
     String neuralNetworkDirectory;
     String neuralNetworkFile;
     String bot_nick;
+    final String source = "https://github.com/raidancampbell/swiggityspeare";
 
     /**
      * Honestly, I haven't figured out the difference between OnGenericMessage and OnMessage yet
@@ -42,6 +40,7 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
         parseInvite(event);
         parseRemind(event);
         parsePing(event);
+        parseSource(event);
         String message = event.getMessage();
         if (message.toLowerCase().startsWith(bot_nick.toLowerCase())) {
             String query = message.substring(message.indexOf(" ") + 1);
@@ -76,6 +75,22 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
     public void onInvite(InviteEvent event) {
         if(irc_instance == null) irc_instance = new OutputIRC(event.getBot());
         irc_instance.joinChannel(event.getChannel());
+    }
+
+    /**
+     *  Parses a MessageEvent to see if someone is asking for the bot's source
+     *  if it does, it replies with a link to the github page
+     * @param event MessageEvent received by the bot
+     */
+    public void parseSource(MessageEvent event) {
+        if (event.getMessage().startsWith("!source")) {
+            event.respond(source);
+            //look, abdallah, I'm using an else if!
+        } else if(event.getMessage().toLowerCase().startsWith("who is "+ bot_nick.toLowerCase())) {
+            event.respond(source);
+        } else if(event.getMessage().toLowerCase().equals("what is "+ bot_nick.toLowerCase())) {
+            event.respond(source);
+        }
     }
 
     /**
