@@ -30,6 +30,7 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
     OutputIRC irc_instance = null;
     String neuralNetworkDirectory;
     String neuralNetworkFile;
+    String bot_nick;
 
     /**
      * Honestly, I haven't figured out the difference between OnGenericMessage and OnMessage yet
@@ -42,7 +43,7 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
         parseRemind(event);
         parsePing(event);
         String message = event.getMessage();
-        if (message.toLowerCase().startsWith("swiggity")) {
+        if (message.toLowerCase().startsWith(bot_nick.toLowerCase())) {
             String query = message.substring(message.indexOf(" ") + 1);
             if (!query.isEmpty()) {
                 String response = Swiggityspeare_utils.getString(query, neuralNetworkDirectory, neuralNetworkFile);
@@ -181,7 +182,7 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
         Option option_port = new Option("p", true,"IRC server port number (SSL is assumed) [6697]");
         Option option_botname = new Option("n", true, "nick for the bot to take [swiggityspeare]");
         Option option_channel = new Option("c", true, "channels to join, including quotes, in the format \"#chan1 #chan2\" [#cwru]");
-        Option option_nnDir = new Option("d", true, "relative path of the char-rnn directory [dependencies/char-rnn]");
+        Option option_nnDir = new Option("d", true, "relative path of the char-rnn directory [\"dependencies/char-rnn\"]");
         Option option_network = new Option("t", true, "filename of the .t7 holding the neural network within char-rnn's root directory [irc_network.t7]");
         Options options = new Options();
         options.addOption(option_server)
@@ -233,7 +234,8 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
         SwiggitySpeare_bot bot_instance = new SwiggitySpeare_bot();
         bot_instance.neuralNetworkFile = nnFile;
         bot_instance.neuralNetworkDirectory = nnDir;
-
+        bot_instance.bot_nick = botname;
+        
         //Configure what we want our bot to do
         Configuration.Builder confBuilder = new org.pircbotx.Configuration.Builder()
                 .setName(botname) //Set the nick of the bot.
