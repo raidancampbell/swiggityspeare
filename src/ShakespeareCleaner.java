@@ -1,10 +1,17 @@
+/*
+ * ShakespeareCleaner is analogous to LogCleaner:
+ * it takes the works of shakespeare and cleans and reformats them into
+ * a more IRC-style format.
+ * Input the works of shakespeare, 
+ * Output the works of shakespeare in irc-style, which, come to think of it, is a really weird thing to do.
+ */
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 /**
- * Created by user on 6/19/2015.
+ * @author R. Aidan Campbell on 6/19/2015.
  */
 public class ShakespeareCleaner {
     private final String DIRECTORY;
@@ -35,6 +42,7 @@ public class ShakespeareCleaner {
     private String readShakespeare()  throws IOException{
         File folder = new File(DIRECTORY);
         File[] listOfFiles = folder.listFiles();
+        if(listOfFiles == null) throw new IOException();
         StringBuilder stringBuilder = new StringBuilder();
         for (File file : listOfFiles) {
             if (file.isFile()) {
@@ -44,7 +52,7 @@ public class ShakespeareCleaner {
         return stringBuilder.toString();
     }
 
-    public String addNick(String shakespeareanLine){
+    private String addNick(String shakespeareanLine){
         return "Shakespeare: "+shakespeareanLine;
     }
 

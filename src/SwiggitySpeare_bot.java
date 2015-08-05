@@ -1,9 +1,11 @@
-
+/*
+ * SwiggitySpeare_bot is the IRC bot interface
+ * it receives information from the irc, and parses it up to deal with
+ * This is the main entry point for the .jar execution,
+ * and contains plenty of useful CLI switches
+ */
 /**
  * @author R. Aidan Campbell on 7/29/15.
- * 
- * TODO: disconnect from a channel after invite given
- * TODO: conditional command obedience
  */
 
 import org.pircbotx.*;

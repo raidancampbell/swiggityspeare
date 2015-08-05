@@ -1,3 +1,9 @@
+/*
+ * Swiggityspeare_utils contains odds-and-ends, mostly for interfacing with the neural network
+ * The main method cleans and outputs IRC log files, while other methods are more geared towards
+ * cleaning data before and after querying the neural network
+ */
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -9,15 +15,15 @@ import java.util.regex.Pattern;
 public class Swiggityspeare_utils {
     
     public Swiggityspeare_utils(){
-        //constructors, yo.
+        //where we're going, we don't need any constructors
     }
     
     public static void main (String[] args){
         //main method, yo.
         
-        //on every start we're gonna read the raw data, clean it, and write it back out.
+        //on start we're gonna read the raw data, clean it, and write it back out.
         //because that makes sense while we're developing it.
-        //writeCleanedData(readRawData());
+        writeCleanedData(readRawData());
     }
 
     /**
@@ -31,7 +37,7 @@ public class Swiggityspeare_utils {
             return cleaner.clean() + shakespeareCleaner.clean();
         } catch (IOException e) {
             e.printStackTrace();
-            return e.getStackTrace().toString();
+            return e.toString(); //probably not terribly useful
         }
         
     }
@@ -129,20 +135,7 @@ public class Swiggityspeare_utils {
             return trimNick(trimNick(value));
         }
     }
-
-    /**
-     * removes IRC nicks from the beginning of a string
-     * @param input string, possibly containing an IRC nick in `nick: ` format
-     * @return the given string without the prepended nick
-     */
-    public static String trimNick(String input){
-        Pattern p = Pattern.compile("^ ?\\w+:\\s");
-        // one or more word characters at the beginning of a string, followed by a colon, then a whitespace
-        Matcher m = p.matcher(input);
-        if(m.find()) return input.substring(0, m.end());
-        return input.trim();
-    }
-
+    
     /**
      * elicits a string from the RNN, of the given length
      * @param length length of the desired string
@@ -155,15 +148,16 @@ public class Swiggityspeare_utils {
     }
 
     /**
-     * removes the 'nick:' from the string
-     * @param networkResponse input directly from a getString call
-     * @return the text that a nick said
-     * TODO: we may receive multiline statements. fluffen, clean, flatten.
+     * removes IRC nicks from the beginning of a string
+     * @param input string, possibly containing an IRC nick in `nick: ` format
+     * @return the given string without the prepended nick
      */
-    public static String cleanString(String networkResponse){
-        String author=networkResponse.substring(0,networkResponse.indexOf(":"));
-        String text =networkResponse.substring(networkResponse.indexOf(":"));
-        return text;
+    public static String trimNick(String input){
+        Pattern p = Pattern.compile("^ ?\\w+:\\s");
+        // one or more word characters at the beginning of a string, followed by a colon, then a whitespace
+        Matcher m = p.matcher(input);
+        if(m.find()) return input.substring(0, m.end());
+        return input.trim();
     }
 
     /**

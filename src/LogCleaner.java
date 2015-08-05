@@ -1,3 +1,10 @@
+/*
+ * LogCleaner is a pile of heavily abstracted methods to scrub IRC data
+ * into a more usable form
+ * Input the directory of IRC logfiles, it concatenates them all, and removes 
+ * various bits of metadata such as timestamps, motds, or other server information
+ */
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -6,7 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Created by aidan on 6/11/15.
+ * @author R. Aidan Campbell on 6/11/15.
  */
 public class LogCleaner {
     private final String DIRECTORY;
@@ -56,10 +63,12 @@ public class LogCleaner {
     /**
      * reads all the files from the DIRECTORY set in the constructor
      * @return the concatenated string of all the files
+     * @throws IOException if no files are found in the constructor's directory 
      */
     private String readAllFiles() throws IOException {
         File folder = new File(DIRECTORY);
         File[] listOfFiles = folder.listFiles();
+        if(listOfFiles == null) throw new IOException();
         StringBuilder stringBuilder = new StringBuilder();
         for (File file : listOfFiles) {
             if (file.isFile()) {
