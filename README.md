@@ -1,4 +1,6 @@
 # swiggityspeare
+[![forthebadge](http://forthebadge.com/images/badges/powered-by-case-western-reserve.svg)](http://forthebadge.com)
+
 Character-based recurrent neural networks from colloquial English with a touch of Shakespeare, wrapped into an IRC chatbot
 
 It's bring-your-own neural network for privacy reasons.  I'll try to include a semi-decent sample.
