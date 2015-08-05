@@ -11,6 +11,7 @@ import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.ChannelInfoEvent;
 import org.pircbotx.hooks.events.InviteEvent;
 import org.pircbotx.hooks.events.MessageEvent;
+import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.pircbotx.hooks.types.GenericMessageEvent;
 import org.pircbotx.output.OutputIRC;
 
@@ -78,19 +79,41 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
     }
 
     /**
+     * This is 80% duplicated code from the onMessage function.
+     * This allows it to respond as expected to a private query.
+     * There is no parseInvite, and neural network queries don't need to be prepended
+     * TODO: don't duplicate code...
+     * @param event PrivateMessageEvent received by the bot
+     */
+    @Override
+    public void onPrivateMessage(PrivateMessageEvent event) {
+        if( parseRemind(event) || parsePing(event) || parseSource(event)) return;
+        String query =event.getMessage();
+        if (!query.isEmpty()) {
+            String response = Swiggityspeare_utils.getString(query, neuralNetworkDirectory, neuralNetworkFile);
+            event.respond(response);
+        }
+
+    }
+
+    /**
      *  Parses a MessageEvent to see if someone is asking for the bot's source
      *  if it does, it replies with a link to the github page
-     * @param event MessageEvent received by the bot
+     * @param event GenericMessageEvent received by the bot
      */
-    public void parseSource(MessageEvent event) {
+    public boolean parseSource(GenericMessageEvent event) {
         if (event.getMessage().startsWith("!source")) {
             event.respond(source);
-            //look, abdallah, I'm using an else if!
+            return true;
+            //look abdallah, I'm using an else if!
         } else if(event.getMessage().toLowerCase().startsWith("who is "+ bot_nick.toLowerCase())) {
             event.respond(source);
+            return true;
         } else if(event.getMessage().toLowerCase().equals("what is "+ bot_nick.toLowerCase())) {
             event.respond(source);
+            return true;
         }
+        return false;
     }
 
     /**
@@ -106,11 +129,11 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
      *
      * @param event MessageEvent that may contain a malformed `join` command from another user
      */
-    public void parseInvite(MessageEvent event){
+    public boolean parseInvite(MessageEvent event){
         String message = event.getMessage();
         if(message.toLowerCase().startsWith("join")){
             String[] words = message.split(" ");
-            if(words.length != 2) return;
+            if(words.length != 2) return false;
 
             User user = event.getUser();
             String strChannel = words[1];
@@ -124,6 +147,7 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
                 irc_instance.invite(user.toString(), strChannel);
                 try {Thread.sleep(10000); } catch (Exception e) { e.printStackTrace();}
                 //TODO: part the channel.  Dunno how yet
+                return true;
             } else if (currentChannels.contains("#"+strChannel)) {
                 System.out.println("attempting to join channel: " + "#" + strChannel);
                 irc_instance.joinChannel("#" + strChannel);
@@ -131,8 +155,10 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
                 irc_instance.invite(user.toString(), "#" +strChannel);
                 try {Thread.sleep(10000); } catch (Exception e) { e.printStackTrace();}
                 //TODO: part the channel.  Dunno how yet
+                return true;
             }
         }
+        return false;
     }
 
     /**
@@ -140,11 +166,12 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
      * if it does, it replies with a pong
      * @param event GenericMessageEvent received by the bot
      */
-    public void parsePing(GenericMessageEvent event){
+    public boolean parsePing(GenericMessageEvent event){
         if(event.getMessage().startsWith("!ping")){
             event.respond("pong");
+            return true;
         }
-        
+        return false;
     }
 
     /**
@@ -153,9 +180,9 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
      * This will sleep this thread, but the library has several working threads
      * @param event GenericMessageEvent received by the bot
      */
-    public void parseRemind(GenericMessageEvent event){
+    public boolean parseRemind(GenericMessageEvent event){
         String message = event.getMessage();
-        if(!message.startsWith("!remind")) return;
+        if(!message.startsWith("!remind")) return false;
         try {
             String MINUTES = "minutes";
             if(!message.contains(MINUTES)) throw new MalformedInputException(0);
@@ -170,7 +197,7 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
             }
             if(intTime < 1) {
                 System.err.println("ERROR: time " + intTime + " is not valid!");
-                throw new MalformedInputException(1);
+                return true;
             }
             String reminderText = message.substring(message.indexOf(MINUTES) + MINUTES.length()).trim();
             Thread.sleep((long)60000 * (long)intTime);
@@ -179,8 +206,9 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
             String usage = "Proper usage is: `!remind n minutes [...]`";
             event.respond("sorry, I derped.  " + usage);
             e.printStackTrace();
+            return true;
         }
-        
+        return false;
     }
 
     /**

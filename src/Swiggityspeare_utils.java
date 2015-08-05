@@ -76,7 +76,7 @@ public class Swiggityspeare_utils {
         commands.add("0"); // make sure what char-rnn gives us is the network's output
         commands.add(file);
         System.out.println("> Querying Neural Net for response to: ");
-        for(String s: commands) System.out.print(s);
+        for(String s: commands) System.out.print(s + ' ');
         System.out.print('\n');
         StringBuilder response = new StringBuilder();
         try {
@@ -122,11 +122,11 @@ public class Swiggityspeare_utils {
         if (value.contains("\n")) {
             if(!value.contains(":")) return "";
             value = value.substring(value.indexOf(':') + 2, value.indexOf('\n')).trim();
-            return trimNick(value);
+            return trimNick(trimNick(value));
         } else {
             if(!value.contains(":")) return "";
             value = value.substring(value.indexOf(':') + 2).trim();
-            return trimNick(value);
+            return trimNick(trimNick(value));
         }
     }
 
@@ -136,11 +136,11 @@ public class Swiggityspeare_utils {
      * @return the given string without the prepended nick
      */
     public static String trimNick(String input){
-        Pattern p = Pattern.compile("^\\w+:\\s");  
+        Pattern p = Pattern.compile("^ ?\\w+:\\s");
         // one or more word characters at the beginning of a string, followed by a colon, then a whitespace
         Matcher m = p.matcher(input);
         if(m.find()) return input.substring(0, m.end());
-        return input;
+        return input.trim();
     }
 
     /**
