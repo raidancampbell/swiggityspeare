@@ -74,7 +74,7 @@ public class Swiggityspeare_utils {
         commands.add(((Integer) length).toString());
         if(seed != null){
             commands.add("-primetext");
-            commands.add('"'+seed+'"');
+            commands.add(seed); //there's funniness with what a command is.  This CAN have spaces, and still be legal!
         }
         commands.add("-seed");
         commands.add(System.currentTimeMillis()+"");//cheating way to turn it into a string
@@ -126,11 +126,12 @@ public class Swiggityspeare_utils {
         System.out.println("Responding to query with: " + value);
         value = value.substring(value.indexOf('\n')+1);  // text before first newline is garbage
         if (value.contains("\n")) {
-            if(!value.contains(":")) return "";
+            if(!value.contains(":")) return value; //all sorts of a patchwork solution.
+            // if we treat IRC-trained neural networks differently than normal ones, query it better (TODO)
             value = value.substring(value.indexOf(':') + 2, value.indexOf('\n')).trim();
             return trimNick(trimNick(value));
         } else {
-            if(!value.contains(":")) return "";
+            if(!value.contains(":")) return value;
             value = value.substring(value.indexOf(':') + 2).trim();
             return trimNick(trimNick(value));
         }
@@ -156,8 +157,8 @@ public class Swiggityspeare_utils {
         Pattern p = Pattern.compile("^ ?\\w+:\\s");
         // one or more word characters at the beginning of a string, followed by a colon, then a whitespace
         Matcher m = p.matcher(input);
-        if(m.find()) return input.substring(0, m.end());
-        return input.trim();
+        if(m.find()) return input.substring(m.end()).trim();
+        return input;
     }
 
     /**
