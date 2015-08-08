@@ -128,6 +128,7 @@ public class Swiggityspeare_utils {
         if (value.contains("\n")) {
             if(!value.contains(":")) return value; //all sorts of a patchwork solution.
             // if we treat IRC-trained neural networks differently than normal ones, query it better (TODO)
+            if(value.indexOf(':') > value.indexOf('\n')) return value.trim();//issue if the string is '\n' then ':'
             value = value.substring(value.indexOf(':') + 2, value.indexOf('\n')).trim();
             return trimNick(trimNick(value));
         } else {
