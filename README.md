@@ -5,6 +5,20 @@ Character-based recurrent neural networks wrapped into an IRC chatbot.  Initiall
 colloquial English with a touch of Shakespeare, the network can't be open-sourced for privacy reasons: 
 training data came from IRC users who didn't consent to open-sourcing.
 
+### tl;dr environment setup
+
+- `git clone https://github.com/raidancampbell/swiggityspeare.git`
+- `cd swiggityspeare/dependencies`
+- `git clone https://github.com/karpathy/char-rnn.git`
+- `mv irc_network.t7 char-rnn`
+- [install `Torch`](http://torch.ch/)
+- `luarocks install nngraph`
+- `luarocks install optim`
+- `luarocks install cutorch`
+- `luarocks install cunn`
+- `cd ..`
+- `java -jar swiggityspeare.jar -c "#swag #cwru" -n babbyspeare`
+
 ### dependencies
 
 Swiggity's dependencies are all taken care of at compile time with the .jar files in the `dependencies` directory.
@@ -38,20 +52,6 @@ usage:
     -s <arg>   IRC server hostname [irc.case.edu]
     -t <arg>   filename of the .t7 holding the neural network within
                char-rnn's root directory [irc_network.t7]
-
-### tl;dr environment setup
-
-- `git clone https://github.com/raidancampbell/swiggityspeare.git`
-- `cd swiggityspeare/dependencies`
-- `git clone https://github.com/karpathy/char-rnn.git`
-- `mv irc_network.t7 char-rnn`
-- [install `Torch`](http://torch.ch/)
-- `luarocks install nngraph`
-- `luarocks install optim`
-- `luarocks install cutorch`
-- `luarocks install cunn`
-- `cd ..`
-- `java -jar swiggityspeare.jar -c "#swag #cwru" -n babbyspeare`
 
 ### Contributions
 Git-workflow-style fork-commit-pullreqest.  You kids are all better at git than I am, so I'm learning from you here.
