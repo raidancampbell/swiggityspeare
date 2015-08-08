@@ -26,7 +26,7 @@ Swiggity's dependencies are all taken care of at compile time with the .jar
 files in the `dependencies` directory.
 
 The neural network is expected to be [Andrej Karpathy's
-char-rnn](karpathy_char-rnn), cloned directly in the `dependencies` directory,
+char-rnn][karpathy_char-rnn], cloned directly in the `dependencies` directory,
 so that the structure is `swiggityspeare/dependencies/char-rnn`. This program
 has several dependencies of its own, and I would highly recommend using the GPU
 accelerated CUDA code. To get that working you need `Torch` `luarocks` `cunn`
