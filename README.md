@@ -1,8 +1,8 @@
 # swiggityspeare
 [![forthebadge](http://forthebadge.com/images/badges/powered-by-case-western-reserve.svg)](http://forthebadge.com)
 
-Character-based recurrent neural networks wrapped into an IRC chatbot.  Initially designed to be 
-colloquial English with a touch of Shakespeare, the network can't be open-sourced for privacy reasons: 
+Character-based recurrent neural networks wrapped into an IRC chatbot.  Initially designed to be
+colloquial English with a touch of Shakespeare, the network can't be open-sourced for privacy reasons:
 training data came from IRC users who didn't consent to open-sourcing.
 
 ### dependencies
@@ -14,9 +14,9 @@ cloned directly in the `dependencies` directory, so that the structure is `swigg
 This program has several dependencies of its own, and I would highly recommend using the GPU accelerated CUDA code.
 To get that working you need `Torch` `luarocks` `cunn` `cutorch` `nngraph` `optim`, and the nvidia CUDA runtime.
 Test the environment with a quick `th train.lua`, whose default settings should begin training from a shakespeare
- dataset included in the char-rnn repository.  
+ dataset included in the char-rnn repository.
 
-It's build-your-own neural network. A sample network is in dependencies/irc_network.t7: 
+It's build-your-own neural network. A sample network is in dependencies/irc_network.t7:
 it's a quick shakespeare-trained network.  __This needs to be moved into the newly cloned `char-rnn` directory to work.__
 
 At this point usage is pretty simple.  The project is based on IntelliJ, so just `build`->`build artifacts`->`swiggityspeare.jar`, or use the prebuilt `swiggityspeare.jar` provided.
@@ -24,11 +24,11 @@ At this point usage is pretty simple.  The project is based on IntelliJ, so just
 ### usage
 
 Execution is a simple `java -jar swiggityspeare.jar`.  However, the jar expects the `dependencies` directory to be
-alongside it (or the `-d` switch to be set), so that it knows where the `char-rnn` code is, and can execute it. 
+alongside it (or the `-d` switch to be set), so that it knows where the `char-rnn` code is, and can execute it.
 The prepackaged .t7 neural network needs to be moved into the cloned `char-rnn` directory.
 
 when in doubt, `java -jar swiggityspeare.jar --IHaveNoIdeaWhatImDoing` (or any invalid switch, like --help) will print the usage text.  For the lazy:
-usage: 
+usage:
 
     swiggityspeare
     -c <arg>   channels to join, including quotes, in the format "#chan1 #chan2" [#cwru]
