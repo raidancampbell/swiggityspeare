@@ -126,7 +126,7 @@ public class Swiggityspeare_utils {
         System.out.println("Responding to query with: " + value);
         value = value.substring(value.indexOf('\n')+1);  // text before first newline is garbage
         if (value.contains("\n")) {
-            if(!value.contains(":")) return value; //all sorts of a patchwork solution.
+            if(!value.contains(":")) return value.substring(0, value.indexOf('\n')).trim(); //all sorts of a patchwork solution.
             // if we treat IRC-trained neural networks differently than normal ones, query it better (TODO)
             if(value.indexOf(':') > value.indexOf('\n')) return value.trim();//issue if the string is '\n' then ':'
             value = value.substring(value.indexOf(':') + 2, value.indexOf('\n')).trim();
