@@ -34,7 +34,7 @@ accelerated CUDA code. To get that working you need `Torch` `luarocks` `cunn`
 with a quick `th train.lua`, whose default settings should begin training from a
 shakespeare dataset included in the char-rnn repository.
 
-[karpathy_char-rnn][https://github.com/karpathy/char-rnn]
+[karpathy_char-rnn]: https://github.com/karpathy/char-rnn
 
 It's build-your-own neural network. A sample network is in
 dependencies/irc_network.t7: it's a quick shakespeare-trained network.  __This
