@@ -72,7 +72,7 @@ public class Swiggityspeare_utils {
         commands.add("sample.lua");
         commands.add("-length");
         commands.add(((Integer) length).toString());
-        if(seed != null){
+        if(seed != null && !seed.isEmpty()){
             commands.add("-primetext");
             commands.add(seed); //there's funniness with what a command is.  This CAN have spaces, and still be legal!
         }
@@ -156,6 +156,20 @@ public class Swiggityspeare_utils {
      */
     public static String trimNick(String input){
         Pattern p = Pattern.compile("^ ?\\w+:\\s");
+        // one or more word characters at the beginning of a string, followed by a colon, then a whitespace
+        Matcher m = p.matcher(input);
+        if(m.find()) return input.substring(m.end()).trim();
+        return input;
+    }
+
+    /**
+     * removes a specific IRC nick from the beginning of a string
+     * @param input string, possibly containing an IRC nick in `nick: ` format
+     * @param botNick string, the nick of the bot which may prepend the input.
+     * @return the given string without the prepended nick
+     */
+    public static String trimNick(String input, String botNick){
+        Pattern p = Pattern.compile("^"+botNick+"(:|,)?\\s?");
         // one or more word characters at the beginning of a string, followed by a colon, then a whitespace
         Matcher m = p.matcher(input);
         if(m.find()) return input.substring(m.end()).trim();

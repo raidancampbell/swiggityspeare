@@ -46,8 +46,9 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
         parseSource(event);
         String message = event.getMessage();
         if (message.toLowerCase().startsWith(bot_nick.toLowerCase())) {
-            String query = message.substring(message.indexOf(" ") + 1);
+            String query = message;
             if (!query.isEmpty()) {
+                query = Swiggityspeare_utils.trimNick(query, bot_nick); //trim off `swiggityspeare` from input
                 String response = Swiggityspeare_utils.getString(query, neuralNetworkDirectory, neuralNetworkFile);
                 event.respond(response);
             }
@@ -90,8 +91,9 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
     @Override
     public void onPrivateMessage(PrivateMessageEvent event) {
         if( parseRemind(event) || parsePing(event) || parseSource(event)) return;
-        String query =event.getMessage();
+        String query = event.getMessage();
         if (!query.isEmpty()) {
+            query = Swiggityspeare_utils.trimNick(query, bot_nick); //trim off `swiggityspeare` from input
             String response = Swiggityspeare_utils.getString(query, neuralNetworkDirectory, neuralNetworkFile);
             event.respond(response);
         }
