@@ -13,6 +13,7 @@ users who didn't consent to open-sourcing.
 - `git clone https://github.com/karpathy/char-rnn.git`
 - `mv irc_network.t7 char-rnn`
 - install [`Torch`][torch]
+- install the [CUDA Toolkit][cuda]
 - `luarocks install nngraph`
 - `luarocks install optim`
 - `luarocks install cutorch`
@@ -21,6 +22,7 @@ users who didn't consent to open-sourcing.
 - `java -jar swiggityspeare.jar -c "#swag #cwru" -n babbyspeare`
 
 [torch]: http://torch.ch/
+[cuda]: https://developer.nvidia.com/cuda-downloads
 
 ### dependencies
 
@@ -32,7 +34,7 @@ char-rnn][karpathy_char-rnn], cloned directly in the `dependencies` directory,
 so that the structure is `swiggityspeare/dependencies/char-rnn`. This program
 has several dependencies of its own, and I would highly recommend using the GPU
 accelerated CUDA code. To get that working you need `Torch` `luarocks` `cunn`
-`cutorch` `nngraph` `optim`, and the nvidia CUDA runtime. Test the environment
+`cutorch` `nngraph` `optim`, and [the nvidia CUDA runtime][cuda]. Test the environment
 with a quick `th train.lua`, whose default settings should begin training from a
 Shakespeare dataset included in the char-rnn repository.
 
