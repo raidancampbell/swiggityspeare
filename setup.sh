@@ -32,8 +32,6 @@ git submodule update
 
 cp dependencies/irc_network.t7 dependencies/char-rnn/
 
-LUA_PACKAGES=nngraph optim cutorch cunn
-
-for package in LUA_PACKAGES; do
+for package in nngraph optim cutorch cunn; do
   luarocks install $package
 done
