@@ -23,7 +23,7 @@ function install_torch {
   source ~/.bashrc
 }
 
-if [ -n $(which th) ]; then
+if [ -z $(which th) ]; then
   no_torch
 fi
 
