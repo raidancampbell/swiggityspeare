@@ -12,7 +12,7 @@ Swiggityspeare now comes with an easy setup script to get started! You'll still
 need to install CUDA manually, but here's the process:
 
 - install the [CUDA Toolkit][cuda]
-- `git clone https://github.com/raidancampbell/swiggityspeare.git`
+- `git clone https://github.com/raidancampbell/swiggityspeare.git --recursive`
 - `cd swiggityspeare`
 - `./setup.sh`
 - `java -jar swiggityspeare.jar -c "#swag #cwru" -n babbyspeare`
