@@ -8,41 +8,40 @@ users who didn't consent to open-sourcing.
 
 ### tl;dr environment setup
 
-- `git clone https://github.com/raidancampbell/swiggityspeare.git`
-- `cd swiggityspeare/dependencies`
-- `git clone https://github.com/karpathy/char-rnn.git`
-- `mv irc_network.t7 char-rnn`
-- install [`Torch`][torch]
+Swiggityspeare now comes with an easy setup script to get started! You'll still
+need to install CUDA manually, but here's the process:
+
 - install the [CUDA Toolkit][cuda]
-- `luarocks install nngraph`
-- `luarocks install optim`
-- `luarocks install cutorch`
-- `luarocks install cunn`
-- `cd ..`
+- `git clone https://github.com/raidancampbell/swiggityspeare.git`
+- `cd swiggityspeare`
+- `./setup.sh`
 - `java -jar swiggityspeare.jar -c "#swag #cwru" -n babbyspeare`
+
+`setup.sh` will ask to install [Torch][torch], init+update the git submodule for
+[Andrej Karpathy's char-rnn][karpathy_char-rnn], move the neural network into
+place, and install the required packages with `luarocks`.
 
 [torch]: http://torch.ch/
 [cuda]: https://developer.nvidia.com/cuda-downloads
+[karpathy_char-rnn]: https://github.com/karpathy/char-rnn
 
 ### dependencies
 
-Swiggity's dependencies are all taken care of at compile time with the .jar
+Swiggity's Java dependencies are all taken care of at compile time with the .jar
 files in the `dependencies` directory.
 
-The neural network is expected to be [Andrej Karpathy's
-char-rnn][karpathy_char-rnn], cloned directly in the `dependencies` directory,
-so that the structure is `swiggityspeare/dependencies/char-rnn`. This program
-has several dependencies of its own, and I would highly recommend using the GPU
-accelerated CUDA code. To get that working you need `Torch` `luarocks` `cunn`
-`cutorch` `nngraph` `optim`, and [the nvidia CUDA runtime][cuda]. Test the environment
-with a quick `th train.lua`, whose default settings should begin training from a
-Shakespeare dataset included in the char-rnn repository.
+Other than CUDA, all of swiggity's system dependencies are best installed using
+`setup.sh`, as explained above. Otherwise, manually install Torch, `git
+submodule init` and `git submodule update`, and use `luarocks` (provided with
+Toch) to install `cunn` `cutorch` `nngraph` `optim`.
 
-[karpathy_char-rnn]: https://github.com/karpathy/char-rnn
+Test the environment with a quick `th train.lua`, whose default settings should
+begin training from a Shakespeare dataset included in the char-rnn repository.
 
 It's build-your-own neural network. A sample network is in
 dependencies/irc_network.t7: it's a quick Shakespeare-trained network. __This
 needs to be moved into the newly cloned `char-rnn` directory to work.__
+`setup.sh` manages the initial copying for you.
 
 At this point usage is pretty simple. The project is based on IntelliJ, so just
 `build`->`build artifacts`->`swiggityspeare.jar`, or use the prebuilt
