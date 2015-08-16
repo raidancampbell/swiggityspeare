@@ -155,6 +155,7 @@ public class Swiggityspeare_utils {
      * @return the given string without the prepended nick
      */
     public static String trimNick(String input){
+        if(input == null || input.isEmpty()) return input;
         Pattern p = Pattern.compile("^ ?\\w+:\\s");
         // one or more word characters at the beginning of a string, followed by a colon, then a whitespace
         Matcher m = p.matcher(input);
@@ -169,6 +170,7 @@ public class Swiggityspeare_utils {
      * @return the given string without the prepended nick
      */
     public static String trimNick(String input, String botNick){
+        if(botNick == null || botNick.isEmpty()) return trimNick(input);
         Pattern p = Pattern.compile("^"+botNick+"(:|,)?\\s?");
         // one or more word characters at the beginning of a string, followed by a colon, then a whitespace
         Matcher m = p.matcher(input);
@@ -184,6 +186,7 @@ public class Swiggityspeare_utils {
      * @return whether the input String is a number
      */
     public static boolean isNumber(String input){
+        if(input == null || input.isEmpty()) return false;
         System.out.println("Checking if input '" + input + "' is a number");
         for(char c : input.toCharArray()){
             if(!Character.isDigit(c)) return false;

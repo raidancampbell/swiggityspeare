@@ -40,8 +40,8 @@ public class LogCleaner {
      * @param input irc log line
      * @return the input, without the prepended timestamp
      */
-    private String removeTimestamp(String input){
-        return input.substring(input.indexOf(' '));
+    public static String removeTimestamp(String input){
+        return input.substring(input.indexOf(' ')).trim();
     }
 
     /**
@@ -49,7 +49,7 @@ public class LogCleaner {
      * @param input irc log line
      * @return the input if it was an actual string, an empty string if it was a status message
      */
-    private String removeStatusMessages(String input){
+    public static String removeStatusMessages(String input){
         input = input.trim();
         Matcher m = Pattern.compile("\\S+:").matcher(input);
         if (m.find()){//also handle when status messages are logged like nicks
@@ -83,7 +83,8 @@ public class LogCleaner {
      * @param input input string
      * @return a string[], with magnitude equalling the number of lines in the input string
      */
-    private String[] fluffen(String input){
+    public static String[] fluffen(String input){
+        if(input == null) return new String[]{null};
         return input.split("\n");
     }
 }

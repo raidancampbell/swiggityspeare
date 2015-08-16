@@ -52,7 +52,8 @@ public class ShakespeareCleaner {
         return stringBuilder.toString();
     }
 
-    private String addNick(String shakespeareanLine){
+    public static String addNick(String shakespeareanLine){
+        if(shakespeareanLine == null || shakespeareanLine.isEmpty()) return shakespeareanLine;
         return "Shakespeare: "+shakespeareanLine;
     }
 
@@ -61,7 +62,7 @@ public class ShakespeareCleaner {
      * @param input input string
      * @return a string[], with magnitude equalling the number of lines in the input string
      */
-    private String[] fluffen(String input){
+    public static String[] fluffen(String input){
         return input.split("\n");
     }
 }
