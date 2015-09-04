@@ -13,14 +13,12 @@ import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.ChannelInfoEvent;
 import org.pircbotx.hooks.events.InviteEvent;
 import org.pircbotx.hooks.events.MessageEvent;
-import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.pircbotx.hooks.types.GenericMessageEvent;
 import org.pircbotx.output.OutputIRC;
 
 import org.apache.commons.cli.*;
 import org.apache.commons.cli.ParseException;
-
-import java.nio.charset.MalformedInputException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,7 +30,8 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
     String neuralNetworkFile;
     String bot_nick;
     final String source = "https://github.com/raidancampbell/swiggityspeare";
-
+    HashMap<String, String> lookupTable = SECRETS.getLookupTable();
+    
     /**
      * Honestly, I haven't figured out the difference between OnGenericMessage and OnMessage yet
      *      A MessageEvent seems to be more useful though, because I can tell what channel it came from
@@ -41,18 +40,24 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
     @Override
     public void onMessage(MessageEvent event){
         parseInvite(event);
-        parseRemind(event);
-        parsePing(event);
+        parseForward(event);
         parseSource(event);
-        String message = event.getMessage();
-        if (message.toLowerCase().startsWith(bot_nick.toLowerCase())) {
-            String query = message;
-            if (!query.isEmpty()) {
-                query = Swiggityspeare_utils.trimNick(query, bot_nick); //trim off `swiggityspeare` from input
-                String response = Swiggityspeare_utils.getString(query, neuralNetworkDirectory, neuralNetworkFile);
-                event.respond(response);
-            }
-        }
+    }
+
+    /**
+     * Look who said something. If they're in the magical lookup table (in SECRETS.java) that contains the map to a bot
+     * (as in, a bot was trained and is deployed on them), then repeat what they said to the bot.
+     * This is to replicate what they said in the form of their bot. 
+     * @param event a MessageEvent from when a user said something that the current bot heard
+     * @return boolean indicating whether a forwarding event was parsed
+     */
+    public boolean parseForward(MessageEvent event) {
+        if(event.getChannel().toString().contains("#urwc")) return false;
+        if(lookupTable.containsKey(event.getUser().getNick())) {
+            if(irc_instance == null) irc_instance = new OutputIRC(event.getBot());
+            irc_instance.message("#urwc", lookupTable.get(event.getUser().getNick()) +": " + event.getMessage());
+            return true;
+        } else return false;
     }
 
     /**
@@ -79,25 +84,6 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
     public void onInvite(InviteEvent event) {
         if(irc_instance == null) irc_instance = new OutputIRC(event.getBot());
         irc_instance.joinChannel(event.getChannel());
-    }
-
-    /**
-     * This is 80% duplicated code from the onMessage function.
-     * This allows it to respond as expected to a private query.
-     * There is no parseInvite, and neural network queries don't need to be prepended
-     * TODO: don't duplicate code...
-     * @param event PrivateMessageEvent received by the bot
-     */
-    @Override
-    public void onPrivateMessage(PrivateMessageEvent event) {
-        if( parseRemind(event) || parsePing(event) || parseSource(event)) return;
-        String query = event.getMessage();
-        if (!query.isEmpty()) {
-            query = Swiggityspeare_utils.trimNick(query, bot_nick); //trim off `swiggityspeare` from input
-            String response = Swiggityspeare_utils.getString(query, neuralNetworkDirectory, neuralNetworkFile);
-            event.respond(response);
-        }
-
     }
 
     /**
@@ -151,6 +137,7 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
                 irc_instance.invite(user.toString(), strChannel);
                 try {Thread.sleep(10000); } catch (Exception e) { e.printStackTrace();}
                 //TODO: part the channel.  Dunno how yet
+                //irc_instance.action(strChannel, "part"); //?
                 return true;
             } else if (currentChannels.contains("#"+strChannel)) {
                 System.out.println("attempting to join channel: " + "#" + strChannel);
@@ -159,58 +146,9 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
                 irc_instance.invite(user.toString(), "#" +strChannel);
                 try {Thread.sleep(10000); } catch (Exception e) { e.printStackTrace();}
                 //TODO: part the channel.  Dunno how yet
+                //irc_instance.action(strChannel, "part"); //?
                 return true;
             }
-        }
-        return false;
-    }
-
-    /**
-     * Parses a GenericMessageEvent to see if it complies with a ping event
-     * if it does, it replies with a pong
-     * @param event GenericMessageEvent received by the bot
-     */
-    public boolean parsePing(GenericMessageEvent event){
-        if(event.getMessage().startsWith("!ping")){
-            event.respond("pong");
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Parses a GenericMessageEvent to see if it complies with a reminder event
-     * if it does, it enacts the reminder event
-     * This will sleep this thread, but the library has several working threads
-     * @param event GenericMessageEvent received by the bot
-     */
-    public boolean parseRemind(GenericMessageEvent event){
-        String message = event.getMessage();
-        if(!message.startsWith("!remind")) return false;
-        try {
-            String MINUTES = "minutes";
-            if(!message.contains(MINUTES)) throw new MalformedInputException(0);
-            String strTime = message.substring("!remind ".length());
-            System.out.println("Looking for time in string: " + strTime);
-            int intTime = -1;
-            for(String s : strTime.split(" ")){
-                if(Swiggityspeare_utils.isNumber(s)){
-                    System.out.println("Found a number "+ s + " for time!");
-                    intTime = Integer.parseInt(s);
-                }
-            }
-            if(intTime < 1) {
-                System.err.println("ERROR: time " + intTime + " is not valid!");
-                return true;
-            }
-            String reminderText = message.substring(message.indexOf(MINUTES) + MINUTES.length()).trim();
-            Thread.sleep((long)60000 * (long)intTime);
-            event.respond(reminderText);
-        } catch (Exception e) {
-            String usage = "Proper usage is: `!remind n minutes [...]`";
-            event.respond("sorry, I derped.  " + usage);
-            e.printStackTrace();
-            return true;
         }
         return false;
     }
@@ -227,8 +165,8 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
         //for future reference: Option(String switch, does the option have args, String description)
         Option option_server = new Option("s", true,"IRC server hostname [irc.case.edu]");
         Option option_port = new Option("p", true,"IRC server port number (SSL is assumed) [6697]");
-        Option option_botname = new Option("n", true, "nick for the bot to take [swiggityspeare]");
-        Option option_channel = new Option("c", true, "channels to join, including quotes, in the format \"#chan1 #chan2\" [#cwru]");
+        Option option_botname = new Option("n", true, "nick for the bot to take [forwarding_bot]");
+        Option option_channel = new Option("c", true, "channels to join, including quotes, in the format \"#chan1 #chan2\" [#cwru #swag #urwc]");
         Option option_nnDir = new Option("d", true, "relative path of the char-rnn directory [\"dependencies/char-rnn\"]");
         Option option_network = new Option("t", true, "filename of the .t7 holding the neural network within char-rnn's root directory [irc_network.t7]");
         Options options = new Options();
@@ -239,8 +177,8 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
                 .addOption(option_nnDir)
                 .addOption(option_network);
         //set defaults for the options
-        String servername="irc.case.edu", botname="swiggityspeare", nnDir="dependencies/char-rnn", nnFile="irc_network.t7";
-        String[] channels = {"#cwru", "#swag"};
+        String servername="irc.case.edu", botname="forwarding_bot", nnDir="dependencies/char-rnn", nnFile="irc_network.t7";
+        String[] channels = {"#cwru", "#swag", "#urwc"};
         int port_number = 6697;
         
         //try and apply the parsed options.  if we didn't find them, then the defaults stick
@@ -269,7 +207,7 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
             }
         } catch (ParseException e) {
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp( "swiggityspeare", options );
+            formatter.printHelp( "forwarding_bot", options );
             e.printStackTrace();
             System.exit(0);
         } catch (NumberFormatException e) {
