@@ -15,6 +15,7 @@ import org.pircbotx.hooks.events.InviteEvent;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.pircbotx.hooks.types.GenericMessageEvent;
+import org.pircbotx.output.OutputChannel;
 import org.pircbotx.output.OutputIRC;
 
 import org.apache.commons.cli.*;
@@ -44,6 +45,7 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
         parseRemind(event);
         parsePing(event);
         parseSource(event);
+        parsePart(event);
         String message = event.getMessage();
         if (message.toLowerCase().startsWith(bot_nick.toLowerCase())) {
             String query = message;
@@ -115,6 +117,14 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
             return true;
         } else if(event.getMessage().toLowerCase().equals("what is "+ bot_nick.toLowerCase())) {
             event.respond(source);
+            return true;
+        }
+        return false;
+    }
+    
+    public boolean parsePart(MessageEvent event) {
+        if (event.getMessage().startsWith("!leave") || event.getMessage().startsWith("!part")) {
+            new OutputChannel(event.getBot(), event.getChannel()).part();
             return true;
         }
         return false;
