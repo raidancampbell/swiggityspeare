@@ -32,6 +32,7 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
     String neuralNetworkDirectory;
     String neuralNetworkFile;
     String bot_nick;
+    boolean include_nick_in_query;
     final String source = "https://github.com/raidancampbell/swiggityspeare";
 
     /**
@@ -51,6 +52,7 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
             String query = message;
             if (!query.isEmpty()) {
                 query = Swiggityspeare_utils.trimNick(query, bot_nick); //trim off `swiggityspeare` from input
+                if(include_nick_in_query) query = event.getUser().getNick() + ": " + query;
                 String response = Swiggityspeare_utils.getString(query, neuralNetworkDirectory, neuralNetworkFile);
                 event.respond(response);
             }
@@ -96,6 +98,7 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
         String query = event.getMessage();
         if (!query.isEmpty()) {
             query = Swiggityspeare_utils.trimNick(query, bot_nick); //trim off `swiggityspeare` from input
+            if(include_nick_in_query) query = event.getUser().getNick() + ": " + query;
             String response = Swiggityspeare_utils.getString(query, neuralNetworkDirectory, neuralNetworkFile);
             event.respond(response);
         }
@@ -160,7 +163,10 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
                 try {Thread.sleep(100); } catch (Exception e) { e.printStackTrace();}
                 irc_instance.invite(user.toString(), strChannel);
                 try {Thread.sleep(10000); } catch (Exception e) { e.printStackTrace();}
-                //TODO: part the channel.  Dunno how yet
+
+                if(irc_instance == null) irc_instance = new OutputIRC(event.getBot());
+                irc_instance.action(strChannel, "part");
+
                 return true;
             } else if (currentChannels.contains("#"+strChannel)) {
                 System.out.println("attempting to join channel: " + "#" + strChannel);
@@ -168,7 +174,10 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
                 try {Thread.sleep(100); } catch (Exception e) { e.printStackTrace();}
                 irc_instance.invite(user.toString(), "#" +strChannel);
                 try {Thread.sleep(10000); } catch (Exception e) { e.printStackTrace();}
-                //TODO: part the channel.  Dunno how yet
+                
+                if(irc_instance == null) irc_instance = new OutputIRC(event.getBot());
+                irc_instance.action("#" + strChannel, "part");
+                
                 return true;
             }
         }
@@ -241,17 +250,21 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
         Option option_channel = new Option("c", true, "channels to join, including quotes, in the format \"#chan1 #chan2\" [#cwru]");
         Option option_nnDir = new Option("d", true, "relative path of the char-rnn directory [\"dependencies/char-rnn\"]");
         Option option_network = new Option("t", true, "filename of the .t7 holding the neural network within char-rnn's root directory [irc_network.t7]");
+        Option option_include_nick = new Option("i", false, "include user's nick in the query");
+        
         Options options = new Options();
         options.addOption(option_server)
                 .addOption(option_port)
                 .addOption(option_botname)
                 .addOption(option_channel)
                 .addOption(option_nnDir)
-                .addOption(option_network);
+                .addOption(option_network)
+                .addOption(option_include_nick);
         //set defaults for the options
         String servername="irc.case.edu", botname="swiggityspeare", nnDir="dependencies/char-rnn", nnFile="irc_network.t7";
         String[] channels = {"#cwru", "#swag"};
         int port_number = 6697;
+        boolean include_nick = false;
         
         //try and apply the parsed options.  if we didn't find them, then the defaults stick
         try {
@@ -277,6 +290,7 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
             if(cmdLineInstance.hasOption("t")) {
                 nnFile = cmdLineInstance.getOptionValue("t");
             }
+            include_nick = cmdLineInstance.hasOption("i");
         } catch (ParseException e) {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp( "swiggityspeare", options );
@@ -292,6 +306,7 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
         bot_instance.neuralNetworkFile = nnFile;
         bot_instance.neuralNetworkDirectory = nnDir;
         bot_instance.bot_nick = botname;
+        bot_instance.include_nick_in_query = include_nick;
         
         //Configure what we want our bot to do
         Configuration.Builder confBuilder = new org.pircbotx.Configuration.Builder()

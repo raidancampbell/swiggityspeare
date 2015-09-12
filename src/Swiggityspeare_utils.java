@@ -137,17 +137,6 @@ public class Swiggityspeare_utils {
             return trimNick(trimNick(value));
         }
     }
-    
-    /**
-     * elicits a string from the RNN, of the given length
-     * @param length length of the desired string
-     * @param directory the location (inclusive) of char-rnn
-     * @param file the name of the .t7 trained network to query                  
-     * @return the string returned from the RNN
-     */
-    public static String getString(int length, String directory, String file){
-        return getString(null, length, directory, file);
-    }
 
     /**
      * removes IRC nicks from the beginning of a string
