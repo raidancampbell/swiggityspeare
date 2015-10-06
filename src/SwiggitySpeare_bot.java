@@ -25,6 +25,7 @@ import java.io.*;
 import java.nio.charset.MalformedInputException;
 import java.util.HashSet;
 import java.util.Properties;
+import java.util.Random;
 import java.util.Set;
 
 
@@ -215,6 +216,22 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
     public boolean parseRemind(GenericMessageEvent event){
         String message = event.getMessage();
         if(!message.startsWith("!remind")) return false;
+        if(message.toLowerCase().startsWith("!remind random")) {
+            String reminderText = message.substring(message.indexOf("!remind random")).trim();
+            Random random = new Random();
+            int sleepingTime = random.nextInt((1000 - 1) + 1) + 1;
+            System.out.println("sleeping for " + sleepingTime + " minutes for the random remind!");
+            event.respond("okay, I'll remind you sometime");
+            try {
+                Thread.sleep((long) 60000 * (long) sleepingTime);
+            } catch (InterruptedException e) {
+                event.respond("sorry, I derped.");
+                e.printStackTrace();
+                return true;
+            }
+            event.respond(reminderText);
+            return true;
+        }
         try {
             String MINUTES = "minutes";
             if(!message.contains(MINUTES)) throw new MalformedInputException(0);
@@ -225,6 +242,7 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
                 if(Swiggityspeare_utils.isNumber(s)){
                     System.out.println("Found a number "+ s + " for time!");
                     intTime = Integer.parseInt(s);
+                    break;  //only use the first number for time.
                 }
             }
             if(intTime < 1) {
@@ -232,6 +250,7 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
                 return true;
             }
             String reminderText = message.substring(message.indexOf(MINUTES) + MINUTES.length()).trim();
+            event.respond("okay, reminding in " + intTime + " minutes.");
             Thread.sleep((long)60000 * (long)intTime);
             event.respond(reminderText);
         } catch (Exception e) {
