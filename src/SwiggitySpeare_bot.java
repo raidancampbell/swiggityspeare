@@ -217,7 +217,7 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
         String message = event.getMessage();
         if(!message.startsWith("!remind")) return false;
         if(message.toLowerCase().startsWith("!remind random")) {
-            String reminderText = message.substring(message.indexOf("!remind random")).trim();
+            String reminderText = message.substring("!remind random".length()).trim();
             Random random = new Random();
             int sleepingTime = random.nextInt((1000 - 1) + 1) + 1;
             System.out.println("sleeping for " + sleepingTime + " minutes for the random remind!");
