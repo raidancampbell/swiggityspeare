@@ -21,8 +21,10 @@ import org.pircbotx.output.OutputIRC;
 import org.apache.commons.cli.*;
 import org.apache.commons.cli.ParseException;
 
+import java.io.*;
 import java.nio.charset.MalformedInputException;
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
 
 
@@ -33,8 +35,15 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
     String neuralNetworkFile;
     String bot_nick;
     boolean include_nick_in_query;
-    final String source = "https://github.com/raidancampbell/swiggityspeare";
-
+    static final String source = "https://github.com/raidancampbell/swiggityspeare";
+    static final String INCLUDE_NICK = "include_nick_in_irc_query";
+    static final String AUTOJOIN_CHANNELS = "channels_to_join_on_connect";
+    static final String RNN_DIR = "char-rnn_directory";
+    static final String IRC_PORT_NUMBER = "irc_port_number";
+    static final String IRC_HOSTNAME = "irc_hostname";
+    static final String RNN_FILE = "neural_network_filename";
+    
+    
     /**
      * Honestly, I haven't figured out the difference between OnGenericMessage and OnMessage yet
      *      A MessageEvent seems to be more useful though, because I can tell what channel it came from
@@ -244,22 +253,9 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
         //add options to the command line parser
         CommandLine cmdLineInstance;
         //for future reference: Option(String switch, does the option have args, String description)
-        Option option_server = new Option("s", true,"IRC server hostname [irc.case.edu]");
-        Option option_port = new Option("p", true,"IRC server port number (SSL is assumed) [6697]");
         Option option_botname = new Option("n", true, "nick for the bot to take [swiggityspeare]");
-        Option option_channel = new Option("c", true, "channels to join, including quotes, in the format \"#chan1 #chan2\" [#cwru]");
-        Option option_nnDir = new Option("d", true, "relative path of the char-rnn directory [\"dependencies/char-rnn\"]");
-        Option option_network = new Option("t", true, "filename of the .t7 holding the neural network within char-rnn's root directory [irc_network.t7]");
-        Option option_include_nick = new Option("i", false, "include user's nick in the query");
         
-        Options options = new Options();
-        options.addOption(option_server)
-                .addOption(option_port)
-                .addOption(option_botname)
-                .addOption(option_channel)
-                .addOption(option_nnDir)
-                .addOption(option_network)
-                .addOption(option_include_nick);
+        Options options = (new Options()).addOption(option_botname);
         //set defaults for the options
         String servername="irc.case.edu", botname="swiggityspeare", nnDir="dependencies/char-rnn", nnFile="irc_network.t7";
         String[] channels = {"#cwru", "#swag"};
@@ -270,30 +266,18 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
         try {
             CommandLineParser parser = new DefaultParser();
             cmdLineInstance = parser.parse(options, args, false);
-            if (cmdLineInstance.hasOption("s")) {
-                servername = cmdLineInstance.getOptionValue("s");
-            }
-            if(cmdLineInstance.hasOption("p")) {
-                port_number = Integer.parseInt(cmdLineInstance.getOptionValue("p"));
-            }
             if(cmdLineInstance.hasOption("n")) {
                 botname = cmdLineInstance.getOptionValue("n");
             }
-            if(cmdLineInstance.hasOption("c")) {
-                // have to put arg in quotes to allow preceeding `#`, and this also allows multiple inputs
-                //through one switch usage
-                channels = cmdLineInstance.getOptionValue("c").split(" ");
-            }
-            if(cmdLineInstance.hasOption("d")) {
-                nnDir = cmdLineInstance.getOptionValue("d");
-            }
-            if(cmdLineInstance.hasOption("t")) {
-                nnFile = cmdLineInstance.getOptionValue("t");
-            }
-            include_nick = cmdLineInstance.hasOption("i");
+            Properties prop = getPropertiesFromFile(botname);
+            servername = prop.getProperty(IRC_HOSTNAME);
+            port_number = Integer.parseInt(prop.getProperty(IRC_PORT_NUMBER));
+            channels = prop.getProperty(AUTOJOIN_CHANNELS).split(" ");
+            nnDir = prop.getProperty(RNN_DIR);
+            nnFile = prop.getProperty(RNN_FILE);
+            include_nick = prop.getProperty(INCLUDE_NICK).toLowerCase().equals("true");
         } catch (ParseException e) {
-            HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp( "swiggityspeare", options );
+            new HelpFormatter().printHelp("swiggityspeare", options );
             e.printStackTrace();
             System.exit(0);
         } catch (NumberFormatException e) {
@@ -318,6 +302,31 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
         for(String s : channels) confBuilder.addAutoJoinChannel(s);  //add all the channels you want it to join
         
         return confBuilder.buildConfiguration();
+    }
+    
+    public static Properties getPropertiesFromFile(String botNick) {
+        Properties prop = new Properties();
+        try {
+            InputStream inputStream = new FileInputStream(botNick + ".prop");
+            prop.load(inputStream);
+            return prop;
+        } catch (IOException ioe_) {
+            try {
+                FileOutputStream outputStream = new FileOutputStream(botNick + ".prop");
+                prop.setProperty(INCLUDE_NICK, "False");
+                prop.setProperty(AUTOJOIN_CHANNELS, "#cwru");
+                prop.setProperty(RNN_DIR, "dependencies/char-rnn");
+                prop.setProperty(IRC_PORT_NUMBER, "6697");
+                prop.setProperty(IRC_HOSTNAME, "irc.case.edu");
+                prop.setProperty(RNN_FILE, botNick + ".t7");
+                prop.store(outputStream, null);
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+                System.err.println("failed to write initial configuration to file '"+botNick+".prop'. exiting!");
+                System.exit(2);
+            }
+        }
+        return prop;
     }
 
     /**

@@ -49,23 +49,14 @@ At this point usage is pretty simple. The project is based on IntelliJ, so just
 
 ### usage
 
-Execution is a simple `java -jar swiggityspeare.jar`. However, the jar expects
-the `dependencies` directory to be alongside it (or the `-d` switch to be set),
+Execution is a simple `java -jar swiggityspeare.jar -n bot_nick`. However, the jar expects
+the `dependencies` directory to be alongside it (or the configuration to be set),
 so that it knows where the `char-rnn` code is, and can execute it. The
 prepackaged .t7 neural network needs to be moved into the cloned `char-rnn`
 directory.
 
-When in doubt, `java -jar swiggityspeare.jar --IHaveNoIdeaWhatImDoing` (or any
-invalid switch, like --help) will print the usage text. For the lazy: usage:
-
-    swiggityspeare
-    -c <arg>   channels to join, including quotes, in the format "#chan1 #chan2" [#cwru]
-    -d <arg>   relative path of the char-rnn directory ["dependencies/char-rnn"]
-    -n <arg>   nick for the bot to take [swiggityspeare]
-    -p <arg>   IRC server port number (SSL is assumed) [6697]
-    -s <arg>   IRC server hostname [irc.case.edu]
-    -t <arg>   filename of the .t7 holding the neural network within
-               char-rnn's root directory [irc_network.t7]
+When in doubt, read one of the .prop files for options. A new one is generated
+for each bot nick.
 
 ### Contributions
 Git-workflow-style fork-commit-pullreqest. You kids are all better at git than
