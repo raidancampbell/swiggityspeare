@@ -93,6 +93,22 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
     public void onInvite(InviteEvent event) {
         if(irc_instance == null) irc_instance = new OutputIRC(event.getBot());
         irc_instance.joinChannel(event.getChannel());
+        try {
+            FileInputStream inputStream = new FileInputStream(bot_nick + ".prop");
+            Properties prop = new Properties();
+            prop.load(inputStream);
+            inputStream.close();
+            System.out.println("Joining channel " + event.getChannel());
+            prop.setProperty(AUTOJOIN_CHANNELS, prop.getProperty(AUTOJOIN_CHANNELS) + ' ' + event.getChannel());
+            System.out.println("Updating autojoin channels to: " + prop.getProperty(AUTOJOIN_CHANNELS) + ' ' + event.getChannel());
+            FileOutputStream outputStream = new FileOutputStream(bot_nick + ".prop");
+            prop.store(outputStream, null);
+            outputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("failed to update configuration file: '"+bot_nick+".prop'. exiting!");
+            System.exit(2);
+        }
     }
 
     /**
@@ -138,6 +154,24 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
     public boolean parsePart(MessageEvent event) {
         if (event.getMessage().startsWith("!leave") || event.getMessage().startsWith("!part")) {
             new OutputChannel(event.getBot(), event.getChannel()).part();
+            try {
+                FileInputStream inputStream = new FileInputStream(bot_nick + ".prop");
+                Properties prop = new Properties();
+                prop.load(inputStream);
+                inputStream.close();
+                System.out.println("leaving channel " + event.getChannel());
+                prop.setProperty(AUTOJOIN_CHANNELS, prop.getProperty(AUTOJOIN_CHANNELS).replace(event.getChannel().getName(), "").replace("  ", " ").trim());
+                System.out.println("Updating autojoin channels to: " + prop.getProperty(AUTOJOIN_CHANNELS).replace(event.getChannel().getName()+" ?", ""));
+                FileOutputStream outputStream = new FileOutputStream(bot_nick + ".prop");
+                prop.store(outputStream, null);
+                outputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.err.println("failed to update configuration file: '"+bot_nick+".prop'. exiting!");
+                System.exit(2);
+            }
+            
+            
             return true;
         }
         return false;
@@ -326,8 +360,10 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
     public static Properties getPropertiesFromFile(String botNick) {
         Properties prop = new Properties();
         try {
-            InputStream inputStream = new FileInputStream(botNick + ".prop");
-            prop.load(inputStream);
+            try (FileInputStream inputStream = new FileInputStream(botNick + ".prop")) {
+                prop.load(inputStream);
+                inputStream.close();
+            }
             return prop;
         } catch (IOException ioe_) {
             try {
@@ -339,6 +375,7 @@ public class SwiggitySpeare_bot extends ListenerAdapter {
                 prop.setProperty(IRC_HOSTNAME, "irc.case.edu");
                 prop.setProperty(RNN_FILE, botNick + ".t7");
                 prop.store(outputStream, null);
+                outputStream.close();
             } catch (IOException ioe) {
                 ioe.printStackTrace();
                 System.err.println("failed to write initial configuration to file '"+botNick+".prop'. exiting!");
