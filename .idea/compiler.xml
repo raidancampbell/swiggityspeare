@@ -18,5 +18,8 @@
         <processorPath useClasspath="true" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="swiggityspeare" target="1.7" />
+    </bytecodeTargetLevel>
   </component>
 </project>
