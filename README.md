@@ -1,5 +1,6 @@
 # swiggityspeare
-[![forthebadge](http://forthebadge.com/images/badges/powered-by-case-western-reserve.svg)](http://forthebadge.com)
+
+## *This code has been deprecated in favor of [sequelspeare](https://github.com/raidancampbell/sequelspeare)*
 
 Character-based recurrent neural networks wrapped into an IRC chatbot.
 Initially designed to be colloquial English with a touch of Shakespeare, the
